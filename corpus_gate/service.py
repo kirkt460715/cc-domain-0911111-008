@@ -12,6 +12,8 @@ from corpus_gate.review.appeals import Appeals
 from corpus_gate.releases import manifests, exporting, selection
 from corpus_gate.releases.transfer import Receiver
 from corpus_gate.releases.withdrawals import Notices
+from corpus_gate.adjudication.rounds import Rounds
+from corpus_gate.adjudication.arbitration import Arbitrations
 
 
 class CorpusGate:
@@ -23,6 +25,8 @@ class CorpusGate:
         self.appeals = Appeals(self.db)
         self.receiver = Receiver(self.db)
         self.notices = Notices(self.db)
+        self.rounds = Rounds(self.db)
+        self.arbitrations = Arbitrations(self.db)
         from corpus_gate.text.search import SearchIndex
         self.search = SearchIndex(self.db)
 
@@ -164,6 +168,21 @@ class CorpusGate:
             'notice.pending': (self.notices.pending, 'subscriber_id', ''),
             'notice.acknowledge': (self.notices.acknowledge, 'subscriber_id notice_id expected_digest receipt', ''),
             'notice.impact': (self.notices.impact, 'release_id', ''),
+            'adjudication.round_create': (self.rounds.create, 'round_id task_kind document_ids vocabulary annotators', ''),
+            'adjudication.round_get': (self.rounds.get, 'round_id', ''),
+            'adjudication.round_list': (self.rounds.list_rounds, '', ''),
+            'adjudication.mark_unavailable': (self.rounds.mark_unavailable, 'round_id document_id reason', ''),
+            'adjudication.submit': (self.rounds.submit, 'round_id document_id annotator payload', ''),
+            'adjudication.retract': (self.rounds.retract, 'round_id document_id annotator reason', ''),
+            'adjudication.history': (self.rounds.submission_history, 'round_id document_id annotator requester', ''),
+            'adjudication.progress': (self.rounds.progress, 'round_id', ''),
+            'adjudication.close': (self.rounds.close, 'round_id', ''),
+            'adjudication.report': (self.rounds.report, 'round_id', ''),
+            'adjudication.disputes': (self.rounds.disputes, 'round_id', ''),
+            'adjudication.arbitrate': (self.arbitrations.decide, 'round_id document_id arbitrator payload reason', ''),
+            'adjudication.arbitration_get': (self.arbitrations.get, 'round_id document_id', ''),
+            'adjudication.arbitration_list': (self.arbitrations.list_for_round, 'round_id', ''),
+            'adjudication.export': (self.arbitrations.export, 'round_id', ''),
             'system.provenance': (bind(inspection.provenance), 'document_id', ''),
             'system.history': (bind(inspection.source_histories), '', ''),
             'system.check': (bind(inspection.check), '', ''),
